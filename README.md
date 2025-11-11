@@ -22,3 +22,4 @@ npm start
 ## Tests
 pytest -q
 
+![Python Tests](https://github.com/mohdzaid145256/Associate-assignment/actions/workflows/python-tests.yml/badge.svg)
