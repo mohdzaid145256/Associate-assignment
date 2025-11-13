@@ -1,0 +1,30 @@
+from flask import Flask
+from flask_cors import CORS
+
+# import the single db instance from extensions so models and app use the same object
+from backend.app.extensions import db as _db
+
+# keep aliases commonly used in the project/tests
+db = _db
+_db = _db
+
+def create_app():
+    app = Flask(__name__)
+    CORS(app)
+
+    # sensible defaults (tests override when needed)
+    app.config.setdefault('SQLALCHEMY_DATABASE_URI', 'sqlite:///../instance/data.db')
+    app.config.setdefault('SQLALCHEMY_TRACK_MODIFICATIONS', False)
+
+    # bind the SQLAlchemy instance to this Flask app
+    _db.init_app(app)
+
+    # register routes blueprint
+    from backend.app.routes import tasks_bp
+    app.register_blueprint(tasks_bp, url_prefix='/api')
+
+    @app.route('/health')
+    def health():
+        return {'status': 'ok'}
+
+    return app
