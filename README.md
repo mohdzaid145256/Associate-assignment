@@ -23,6 +23,10 @@ This project is a professional full-stack web application built using **Flask** 
 
 ---
 
+<img width="1450" height="812" alt="Screenshot 2025-11-13 at 8 55 36 PM" src="https://github.com/user-attachments/assets/3a322df8-8499-4025-8aac-40f33d497d99" />
+<img width="1453" height="817" alt="Screenshot 2025-11-13 at 8 55 47 PM" src="https://github.com/user-attachments/assets/00cdc129-e367-4747-9bd3-08d52dddfe48" />
+
+
 ## Features  
 - Create, list, edit, and delete **Tasks**  
 - For each task: view, add, edit, and delete **Comments**  
