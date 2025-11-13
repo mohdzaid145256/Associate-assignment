@@ -66,3 +66,77 @@ flask db upgrade
 flask run --port=5001
 
 
+Installation
+
+Clone the repo:
+
+git clone https://github.com/<your-username>/<repo-name>.git
+
+cd <repo-name>
+
+Backend Setup
+
+Create & activate venv (recommended):
+
+python -m venv venv
+
+# macOS / Linux
+
+source venv/bin/activate
+
+Install backend requirements:
+
+cd backend
+
+pip install -r requirements.txt
+
+Set env var and run migrations (first time only):
+
+# macOS / Linux
+
+export FLASK_APP=run.py
+
+export FLASK_ENV=development
+
+flask db init            # only first time
+
+flask db migrate -m "initial schema"
+
+flask db upgrade
+
+Start backend:
+
+flask run --port=5001
+
+# Backend runs at http://127.0.0.1:5001 (default port used by the frontend connection)
+
+
+Frontend Setup
+
+From project root:
+
+cd frontend
+
+npm install
+
+npm start
+
+Frontend runs at: http://localhost:3000 and connects to backend on port 5001 by default.
+
+Manual API check example:
+
+curl -i http://127.0.0.1:5001/api/tasks
+
+Testing
+
+Backend unit tests are located in backend/tests/. Run them with:
+
+cd backend
+
+pytest -q
+
+Author & Contact
+
+Mohd Zaid – Python & React Developer
+
+
