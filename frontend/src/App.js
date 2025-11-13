@@ -1,0 +1,220 @@
+import React, { useState, useEffect } from "react";
+import "./App.css";
+
+function IntroModal({ onClose }) {
+  return (
+    <div className="modal-backdrop">
+      <div className="modal">
+        <h2>Welcome 👋</h2>
+        <p>This is your Task & Comment Manager. Here’s how to use it:</p>
+        <ul>
+          <li>Add a task on the left panel.</li>
+          <li>Click a task to see or add comments.</li>
+          <li>Use Edit/Delete to manage both tasks and comments.</li>
+          <li>Toggle 🌙 Dark / ☀️ Light theme for style.</li>
+        </ul>
+        <button className="primary" onClick={onClose}>Got it!</button>
+      </div>
+    </div>
+  );
+}
+
+export default function App() {
+  const [tasks, setTasks] = useState([]);
+  const [newTask, setNewTask] = useState("");
+  const [comments, setComments] = useState([]);
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [newComment, setNewComment] = useState("");
+  const [author, setAuthor] = useState("");
+  const [darkMode, setDarkMode] = useState(false);
+  const [showIntro, setShowIntro] = useState(() => {
+    try { return localStorage.getItem("seenIntro") !== "1"; } catch { return true; }
+  });
+  const [editingTaskId, setEditingTaskId] = useState(null);
+  const [editingTaskTitle, setEditingTaskTitle] = useState("");
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editingCommentText, setEditingCommentText] = useState("");
+
+  const API_URL = "http://127.0.0.1:5000/api";
+
+  useEffect(() => {
+    fetch(`${API_URL}/tasks`).then(r => r.json()).then(setTasks).catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    if (darkMode) document.body.classList.add("dark");
+    else document.body.classList.remove("dark");
+  }, [darkMode]);
+
+  const addTask = async () => {
+    if (!newTask.trim()) return;
+    const res = await fetch(`${API_URL}/tasks`, {
+      method: "POST", headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ title: newTask })
+    });
+    const data = await res.json();
+    if (res.ok) { setTasks([...tasks, data]); setNewTask(""); }
+    else alert(data.error || "Error adding task");
+  };
+
+  const startEditTask = (t) => { setEditingTaskId(t.id); setEditingTaskTitle(t.title); };
+  const saveEditTask = async () => {
+    if (!editingTaskTitle.trim()) return;
+    const res = await fetch(`${API_URL}/tasks/${editingTaskId}`, {
+      method: "PUT", headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ title: editingTaskTitle })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      setTasks(tasks.map(t => t.id===data.id ? data : t));
+      setEditingTaskId(null); setEditingTaskTitle("");
+    } else alert(data.error || "Error editing task");
+  };
+
+  const deleteTask = async (id) => {
+    if (!window.window.confirm("Delete this task and its comments?")) return;
+    const res = await fetch(`${API_URL}/tasks/${id}`, { method: "DELETE" });
+    if (res.ok) {
+      setTasks(tasks.filter(t => t.id !== id));
+      if (selectedTask === id) { setSelectedTask(null); setComments([]); }
+    }
+  };
+
+  const loadComments = async (taskId) => {
+    const res = await fetch(`${API_URL}/tasks/${taskId}/comments`);
+    const data = await res.json();
+    setComments(data); setSelectedTask(taskId);
+  };
+
+  const addComment = async () => {
+    if (!newComment.trim()) return;
+    const res = await fetch(`${API_URL}/tasks/${selectedTask}/comments`, {
+      method: "POST", headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ content: newComment, author })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      setComments([...comments, data]);
+      setNewComment(""); setAuthor("");
+    }
+  };
+
+  const startEditComment = (c) => { setEditingCommentId(c.id); setEditingCommentText(c.content); };
+  const saveEditComment = async () => {
+    if (!editingCommentText.trim()) return;
+    const res = await fetch(`${API_URL}/tasks/${selectedTask}/comments/${editingCommentId}`, {
+      method: "PUT", headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ content: editingCommentText })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      setComments(comments.map(x => x.id===data.id ? data : x));
+      setEditingCommentId(null); setEditingCommentText("");
+    }
+  };
+
+  const deleteComment = async (cid) => {
+    if (!window.window.confirm("Delete this comment?")) return;
+    const res = await fetch(`${API_URL}/tasks/${selectedTask}/comments/${cid}`, { method: "DELETE" });
+    if (res.ok) setComments(comments.filter(c => c.id !== cid));
+  };
+
+  return (
+    <div className="app-container">
+      {showIntro && <IntroModal onClose={() => { setShowIntro(false); try{localStorage.setItem("seenIntro","1")}catch{} }} />}
+
+      <header className="header">
+        <div className="title">
+          <span className="logo">🧠</span>
+          <div>
+            <h1>Task & Comment Manager</h1>
+            <div className="subtitle">Full-stack demo — Flask API + React UI</div>
+          </div>
+        </div>
+
+        <div className="controls">
+          <button className="theme-btn" onClick={()=>setDarkMode(!darkMode)}>
+            {darkMode ? "☀️ Light" : "🌙 Dark"}
+          </button>
+        </div>
+      </header>
+
+      <main className="content">
+        <section className="task-section">
+          <h2>Tasks</h2>
+          <div className="input-group">
+            <input value={newTask} onChange={e=>setNewTask(e.target.value)} placeholder="Enter new task..." />
+            <button className="primary" onClick={addTask}>Add</button>
+          </div>
+
+          <ul className="task-list">
+            {tasks.map(t => (
+              <li key={t.id} onClick={()=>loadComments(t.id)} className={selectedTask===t.id ? "selected animated" : ""}>
+                {editingTaskId===t.id ? (
+                  <div className="edit-inline">
+                    <input value={editingTaskTitle} onChange={e=>setEditingTaskTitle(e.target.value)} />
+                    <button onClick={saveEditTask} className="primary small">Save</button>
+                    <button onClick={()=>{setEditingTaskId(null);}}>Cancel</button>
+                  </div>
+                ) : (
+                  <div className="task-row">
+                    <div>
+                      <h3>{t.title}</h3>
+                      <p className="muted">{new Date(t.created_at).toLocaleString()}</p>
+                    </div>
+                    <div className="task-btns">
+                      <button onClick={(e)=>{e.stopPropagation();startEditTask(t)}} className="small">Edit</button>
+                      <button onClick={(e)=>{e.stopPropagation();deleteTask(t.id)}} className="small danger">Del</button>
+                    </div>
+                  </div>
+                )}
+              </li>
+            ))}
+            {tasks.length===0 && <div className="muted">No tasks yet — add one above.</div>}
+          </ul>
+        </section>
+
+        <section className="comment-section">
+          <h2>Comments</h2>
+          {selectedTask ? (
+            <>
+              <div className="input-group">
+                <input placeholder="Your name" value={author} onChange={e=>setAuthor(e.target.value)} />
+                <input placeholder="Write a comment..." value={newComment} onChange={e=>setNewComment(e.target.value)} />
+                <button className="primary" onClick={addComment}>Post</button>
+              </div>
+
+              <div className="comment-list">
+                {comments.map(c=>(
+                  <div key={c.id} className="comment-card">
+                    {editingCommentId===c.id ? (
+                      <div className="edit-inline">
+                        <input value={editingCommentText} onChange={e=>setEditingCommentText(e.target.value)} />
+                        <button onClick={saveEditComment} className="primary small">Save</button>
+                        <button onClick={()=>setEditingCommentId(null)}>Cancel</button>
+                      </div>
+                    ):(
+                      <>
+                        <p className="comment-text">{c.content}</p>
+                        <p className="comment-meta">— {c.author||"Anonymous"} • {new Date(c.created_at).toLocaleString()}</p>
+                        <div className="task-btns">
+                          <button onClick={()=>startEditComment(c)} className="small">Edit</button>
+                          <button onClick={()=>deleteComment(c.id)} className="small danger">Del</button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                ))}
+                {comments.length===0 && <div className="muted">No comments yet. Be first!</div>}
+              </div>
+            </>
+          ):(
+            <p className="no-task">Select a task to view comments</p>
+          )}
+        </section>
+      </main>
+
+      <footer>Made with ❤️ by Mohd Zaid</footer>
+    </div>
+  );
+}
