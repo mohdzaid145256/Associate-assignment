@@ -1,13 +1,8 @@
 # Task & Comments Manager  
-## Full-Stack Application (Flask + React)
+*A full-stack application: Flask API + React UI*
 
-### Description  
-This project is a professional full-stack web application built with a Python/Flask backend and a React frontend. It allows users to create and manage tasks, add comments to tasks, edit and delete both, with a modern UI featuring dark/light mode, smooth animations and timestamp management.  
-It demonstrates end-to-end CRUD operations, REST API design, database migrations, and UI/UX polish.
-
----
-
-### Table of Contents  
+## Table of Contents  
+- [Description](#description)  
 - [Features](#features)  
 - [Tech Stack](#tech-stack)  
 - [Backend Setup](#backend-setup)  
@@ -16,42 +11,48 @@ It demonstrates end-to-end CRUD operations, REST API design, database migrations
 - [Usage & Demo](#usage--demo)  
 - [Screenshots](#screenshots)  
 - [Testing](#testing)  
-- [Project Status & Roadmap](#project-status--roadmap)  
+- [Roadmap](#roadmap)  
 - [Contributing](#contributing)  
 - [License](#license)  
+- [Author](#author)  
 
 ---
 
-### Features  
-- Create, list, edit and delete **Tasks**  
-- For each task: view, add, edit and delete **Comments**  
-- Dark/Light mode toggle with smooth UI transitions  
-- Relative timestamps (e.g., “6 h”) plus full timestamp on hover  
-- Responsive, professional UI built with animations  
-- Backend: RESTful API endpoints, database migrations (Alembic), CORS support  
-- Frontend: React + Axios for API calls, Tailwind CSS + Framer Motion for animations  
+## Description  
+This project is a professional full-stack web application built using **Flask** for the backend and **React** for the frontend. It allows users to create and manage tasks, add comments to tasks, edit and delete both tasks and comments, while offering a modern, polished UI with dark/light mode and timestamp functionality.
 
 ---
 
-### Tech Stack  
+## Features  
+- Create, list, edit, and delete **Tasks**  
+- For each task: view, add, edit, and delete **Comments**  
+- Dark/Light mode toggle, with smooth UI transitions  
+- Relative timestamps (e.g., “6 h ago”) and full timestamp on hover  
+- Responsive, professional UI with animations  
+- RESTful API backend with database migrations and CORS support  
+- React frontend uses Axios for API calls and modern UI tooling  
+
+---
+
+## Tech Stack  
 **Backend:**  
 - Python 3.12  
 - Flask  
 - SQLAlchemy ORM  
-- Alembic / Flask-Migrate (database migrations)  
-- SQLite (development)  
+- Flask-Migrate / Alembic (for database migrations)  
+- SQLite (for development)  
 - Flask-CORS  
 
 **Frontend:**  
 - React  
 - Axios  
 - Tailwind CSS  
-- Framer Motion  
+- Framer Motion (for animations)  
 - React Icons  
 
 ---
 
-### Backend Setup  
+## Backend Setup  
 ```bash
 cd backend
 python3 -m venv venv
@@ -63,28 +64,5 @@ flask db init
 flask db migrate -m "initial schema"
 flask db upgrade
 flask run --port=5001
-By default, backend runs at: http://127.0.0.1:5001
-
-Frontend Setup
-
-cd frontend
-
-npm install
-
-npm start
-
-API Endpoints
-Tasks
-Method	URL	Description
-POST	/api/tasks	Create a new task
-GET	/api/tasks	List all tasks
-PUT	/api/tasks/<id>	Edit a task title
-DELETE	/api/tasks/<id>	Delete a task
-Comments
-Method	URL	Description
-POST	/api/tasks/<task_id>/comments	Create a comment under task
-GET	/api/tasks/<task_id>/comments	List comments for a task
-PUT	/api/comments/<comment_id>	Edit a comment
-DELETE	/api/comments/<comment_id>	Delete a comment
 
 
